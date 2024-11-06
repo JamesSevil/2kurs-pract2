@@ -61,7 +61,6 @@ void procOfReq(int client_socket, DataBase& carshop) {
             break; 
         }
         string conditions(buffer);
-        mutex mx;
         lock_guard<mutex> lock(mx);
         string message = carshop.checkcommand(conditions);
         // отправка ответа клиенту
