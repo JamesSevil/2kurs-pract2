@@ -48,11 +48,12 @@ void connectClient(DataBase& carshop) {
         }
         cout << "Клиент подключен" << endl;
 
-        thread(procOfReq, new_socket, ref(carshop)).detach(); // обработка запроса клиента в отдельном потоке
+        static mutex mx;
+        thread(procOfReq, new_socket, ref(carshop), ref(mx)).detach(); // обработка запроса клиента в отдельном потоке
     }
 }
 
-void procOfReq(int client_socket, DataBase& carshop) {
+void procOfReq(int client_socket, DataBase& carshop, mutex& mx) {
     while (true) {
         char buffer[1024] = {0};
         int check = read(client_socket, buffer, 1024);
@@ -62,6 +63,7 @@ void procOfReq(int client_socket, DataBase& carshop) {
         }
         string conditions(buffer);
         lock_guard<mutex> lock(mx);
+        this_thread::sleep_for(chrono::milliseconds(5000));
         string message = carshop.checkcommand(conditions);
         // отправка ответа клиенту
         send(client_socket, message.c_str(), message.size(), 0);
